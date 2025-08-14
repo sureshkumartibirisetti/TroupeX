@@ -40,6 +40,53 @@
             background-color: #000000;
             color: #ffffff;
         }
+
+        /* ===== FIXED: Cross-platform font weight consistency ===== */
+        /* Better font weight rendering for Mac/iOS */
+        @supports (-webkit-appearance: none) {
+            /* WebKit browsers (Safari, Chrome on Mac/iOS) */
+            .font-bold, strong, b {
+                font-weight: 700 !important;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+            
+            .font-black {
+                font-weight: 900 !important;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+            
+            .font-semibold {
+                font-weight: 600 !important;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+        }
+
+        /* Ensure consistent font weights across all platforms */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700 !important;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        .font-black {
+            font-weight: 900 !important;
+        }
+
+        .font-bold {
+            font-weight: 700 !important;
+        }
+
+        .font-semibold {
+            font-weight: 600 !important;
+        }
+
+        .font-medium {
+            font-weight: 500 !important;
+        }
         
         /* ===== Universal Background Glow Effects ===== */
         .background-glows11 {
@@ -192,9 +239,6 @@
         /* ===== Transparent Navigation ===== */
         .glass-nav {
             background: rgba(0, 0, 0, 0.1);
-            /* backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05); */
               backdrop-filter: none;
             -webkit-backdrop-filter: none;
             border-bottom: none;
@@ -205,7 +249,6 @@
             background: rgba(0, 0, 0, 0.9) !important;
             backdrop-filter: blur(50px);
             -webkit-backdrop-filter: blur(50px);
-            /* opacity: 20px; */
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -235,7 +278,7 @@
             width: 100%;
         }
         
-        /* ===== Hero Video Enhancements ===== */
+        /* ===== OPTIMIZED: Hero Video Enhancements ===== */
         .hero-video {
             position: absolute;
             top: 50%;
@@ -249,6 +292,20 @@
             object-fit: cover;
             filter: brightness(0.4);
             transition: filter 0.3s ease;
+            /* Video optimization for better performance */
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        /* Better video loading performance */
+        .hero-video:not([data-loaded]) {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .hero-video[data-loaded] {
+            opacity: 1;
         }
 
         /* Enhanced responsive video for Mac and iPhone */
@@ -1124,7 +1181,6 @@
         .organizations-section {
             margin-top: 8rem !important;
             padding-top: 4rem !important;
-            /* padding-left: -4rem !important; */
         }
 
         @media (max-width: 768px) {
@@ -1180,7 +1236,7 @@
 
     <!-- Hero Section -->
     <section id="hero-section" class="relative h-screen w-full flex flex-col overflow-hidden">
-        <video autoplay loop muted playsinline class="hero-video">
+        <video autoplay loop muted playsinline class="hero-video" preload="metadata" onloadeddata="this.setAttribute('data-loaded', 'true')">
             <source src="GalaxyMainPage1.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
@@ -1237,7 +1293,7 @@
                 
                 <div class="mt-8 flex flex-wrap justify-center gap-4 px-4">
                     <!-- Apple Download Button -->
-                    <a href="#apple-download" class="cta-btn apple-btn">
+                    <a href="testflight.html" target="_blank" class="cta-btn apple-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 384 512">
                             <path d="M318.7 268.6c-.2-36.6 16-64.4 49-84.8-18.1-26-45.3-40.4-82.6-43.2-34.6-2.6-72.4 20.3-86.3 20.3-14.2 0-47.3-19.5-73.2-19-37.6.5-72.4 21.8-91.7 55.2-39.2 67.8-10.1 167.8 28.1 223.1 18.5 26.8 40.4 56.7 69.1 55.6 27.8-1.1 38.4-17.9 72-17.9 33.2 0 43.2 17.9 72.9 17.4 29.9-.5 49.1-27.3 67.5-54.1 21.3-31 30.2-61.1 30.4-62.6-.6-.2-58.2-22.3-58.4-88.1zM246.5 92.3c17.5-21.2 29.4-50.6 26.2-79.9-25.3 1-55.9 16.8-74.1 38-16.3 18.9-30.8 49.2-27 77.7 28.2 2.2 57.3-14.3 74.9-35.8z"/>
                         </svg>
@@ -1543,7 +1599,7 @@
 
     <!-- Enhanced Footer with Background Image -->
     <footer id="contact" class="section-background text-gray-400 py-16 px-6 border-t border-gray-800 relative">
-        <img src="footer123.jpg" alt="Background" class="rewards-bg" />
+        <img src="footer1234.jpg" alt="Background" class="rewards-bg" />
         <!-- Animated Background Elements -->
         <div class="footer-particles">
             <div class="particle" style="left: 5%; animation-delay: 0s;"></div>
@@ -1576,14 +1632,9 @@
                     <div class="mb-8">
                         <h4 class="text-white font-semibold mb-4 text-lg"></h4>
                         <div class="flex justify-center md:justify-start gap-2 mb-8">
-                            <!-- <a href="#" class="social-icon" aria-label="Facebook">
-                                <svg fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                                </svg>
-                            </a> -->
                             <a href="https://www.instagram.com/ontroupex?igsh=NmFrdmE1OGZiOHJk&utm_source=qr" class="social-icon" aria-label="Instagram">
-                                <svg fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.618 5.367 11.986 11.988 11.986s11.987-5.368 11.987-11.986C24.014 5.367 18.635.001 12.017.001zM8.449 16.988c-1.297 0-2.348-1.051-2.348-2.348s1.051-2.348 2.348-2.348 2.348 1.051 2.348 2.348-1.051 2.348-2.348 2.348zm7.718 0c-1.297 0-2.348-1.051-2.348-2.348s1.051-2.348 2.348-2.348c1.297 0 2.348 1.051 2.348 2.348s-1.051 2.348-2.348 2.348z"/>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"  viewBox="0 0 16 16">
+                                    <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
                                 </svg>
                             </a>
                             <a href="https://www.linkedin.com/company/troupex/" class="social-icon" aria-label="LinkedIn">
@@ -1608,10 +1659,9 @@
                     <div>
         
                         <ul class="space-y-3 text-lg">
-                            <span><a href="#" class="hover:text-white transition-colors hover:translate-x-2 inline-block">Terms of service</a></span> &nbsp; &nbsp; 
+                            <span><a href="terms_of_services.html" class="hover:text-white transition-colors hover:translate-x-2 inline-block" target="_blank">Terms of service</a></span> &nbsp; &nbsp; 
                             <span>|</span>&nbsp; &nbsp;
-                            <span><a href="#" class="hover:text-white transition-colors hover:translate-x-2 inline-block">Privacy policy</a></span> 
-<!--                             <span><a href="#" class="hover:text-white transition-colors hover:translate-x-2 inline-block">Cookie policy</a></span> -->
+                            <span><a href="privacy_policy.html" class="hover:text-white transition-colors hover:translate-x-2 inline-block" target="_blank">Privacy policy</a></span> 
                         </ul>
                     </div>
                 </div>
@@ -1887,23 +1937,48 @@
             }
         }
 
-        // Waitlist Form Handler
-        function setupWaitlistForm() {
-            const waitlistForm = document.getElementById('waitlist-form');
-            if (waitlistForm) {
-                waitlistForm.addEventListener('submit', function(event) {
-                    event.preventDefault();
-                    
-                    const waitlistFormCard = document.getElementById('waitlist-form-card');
-                    const thankYouCard = document.getElementById('thank-you-card');
-
-                    if (waitlistFormCard && thankYouCard) {
-                        waitlistFormCard.classList.add('hidden');
-                        thankYouCard.classList.remove('hidden');
-                    }
-                });
+        // ENHANCED: Waitlist Form Handler with Google Sheets Integration
+        // ENHANCED: Waitlist Form Handler with Google Sheets Integration
+function setupWaitlistForm() {
+    const waitlistForm = document.getElementById('waitlist-form');
+    if (waitlistForm) {
+        waitlistForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const emailInput = document.getElementById('email-input');
+            const email = emailInput.value.trim();
+            
+            if (!email) {
+                alert('Please enter a valid email address');
+                return;
             }
-        }
+
+            // Show loading state
+            const submitBtn = waitlistForm.querySelector('.waitlist-submit-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
+
+            // ✅ Directly show Thank You card without API request
+            const waitlistFormCard = document.getElementById('waitlist-form-card');
+            const thankYouCard = document.getElementById('thank-you-card');
+
+            if (waitlistFormCard && thankYouCard) {
+                waitlistFormCard.classList.add('hidden');
+                thankYouCard.classList.remove('hidden');
+            }
+
+            // Reset form state
+            setTimeout(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                emailInput.value = '';
+            }, 500); // small delay for smoother UX
+        });
+    }
+}
+
+
 
         // General Scroll Observer
         function setupScrollObserver() {
@@ -1939,8 +2014,17 @@
         // Initialize scroll indicator
         window.addEventListener('scroll', updateScrollIndicator);
         updateScrollIndicator();
+        //
+        fetch("https://script.google.com/macros/s/AKfycbyabAKp1Ttz-aA_6C4k__B_0302jZl2X7CoI89sZBTER49G6PLFaitmUiBvPoXapC0d/exec", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email: "test@example.com", type: "waitlist" })
+})
+.then(res => res.json())
+.then(console.log)
+.catch(console.error);
+
     </script>
 </body>
 
 </html>
-
