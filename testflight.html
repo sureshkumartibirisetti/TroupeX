@@ -29,7 +29,7 @@
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
             overflow-x: hidden;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f172a 100%);
+            background: linear-gradient(135deg, #121218 0%, #181f31 50%, #2b0f2e 100%);
             color: #ffffff;
             min-height: 100vh;
         }
@@ -275,68 +275,104 @@
     </div>
 
     <script>
-    // Generate floating particles
-    function createParticles() {
-        const particlesContainer = document.getElementById('particles');
-        const particleCount = 20;
-        
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = `${Math.random() * 100}%`;
-            particle.style.animationDelay = `${Math.random() * 20}s`;
-            particle.style.animationDuration = `${20 + Math.random() * 10}s`;
-            particlesContainer.appendChild(particle);
-        }
+  // === 1) CONFIG: paste your Apps Script web app URL here ===
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8ZlvTt_V-t7i3lb7uKEYmtL0zKRa7jdIXYi0wgygG4-2SLqAQWElaoz8cxuf7dXEBoQ/exec';
+
+  // Generate floating particles (your existing effect)
+  function createParticles() {
+    const particlesContainer = document.getElementById('particles');
+    const particleCount = 20;
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.animationDelay = `${Math.random() * 20}s`;
+      particle.style.animationDuration = `${20 + Math.random() * 10}s`;
+      particlesContainer.appendChild(particle);
     }
+  }
 
-    // Handle form submission
-    document.getElementById('testflight-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('beta-email').value.trim();
-        const mainCard = document.getElementById('main-card');
-        const successCard = document.getElementById('success-card');
+  // === 2) Helper: send to Google Sheet (no CORS preflight) ===
+  async function sendToSheet({ email, source }) {
+    const params = new URLSearchParams();
+    params.append('email', email);
+    params.append('source', source);                // "testflight" or "waitlist"
+    params.append('userAgent', navigator.userAgent);
+    params.append('page', location.href);
 
-        if (!email) {
-            alert("Please enter a valid email.");
-            return;
-        }
-
-        // 🔹 Your Google Apps Script Web App URL here
-        // const scriptUrl = "https://script.google.com/macros/s/AKfycbyabAKp1Ttz-aA_6C4k__B_0302jZl2X7CoI89sZBTER49G6PLFaitmUiBvPoXapC0d/exec";  
-
-        // // Send data to Google Sheets
-        // fetch(scriptUrl, {
-        //     method: 'POST',
-        //     mode: 'cors',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         email: email,
-        //         type: "testflight"  // This matches your sheet tab name
-        //     })
-        // })
-        // .then(response => response.json())
-        // .then(result => {
-        //     if (result.success) {
-                // Show success message
-                mainCard.style.display = 'none';
-                successCard.style.display = 'block';
-    //         } else {
-    //             alert(result.message || "Something went wrong. Please try again.");
-    //         }
-    //     })
-    //     .catch(error => {
-    //         console.error("Error:", error);
-    //         alert("Network error. Please try again.");
-    //     });
+    // Important: NO custom headers. This keeps it a "simple request" (no preflight).
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: params
     });
 
-    // Initialize particles on load
-    document.addEventListener('DOMContentLoaded', createParticles);
+    // Try to read JSON; if not parsable, we still proceed as success on UI.
+    try {
+      return await res.json();
+    } catch {
+      return { ok: true };
+    }
+  }
+
+  // === 3) Hook your TestFlight form ===
+document.getElementById('testflight-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const email = document.getElementById('beta-email').value.trim();
+  const mainCard = document.getElementById('main-card');
+  const successCard = document.getElementById('success-card');
+  const submitBtn = this.querySelector("button[type=submit]");
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert("Please enter a valid email.");
+    return;
+  }
+
+  // Disable button to prevent multiple clicks
+  submitBtn.disabled = true;
+  submitBtn.innerText = "Please wait...";
+
+  try {
+    await sendToSheet({ email, source: 'testflight' });
+    // Show success UI
+    mainCard.style.display = 'none';
+    successCard.style.display = 'block';
+  } catch (err) {
+    alert('Something went wrong. Please try again.');
+    console.error(err);
+    // Re-enable button on error
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Request Invite";
+  }
+});
+
+
+  // === 4) (Optional) Add a Waitlist form too ===
+  // If you also have a separate waitlist form:
+  // <form id="waitlist-form"><input id="waitlist-email" type="email" ... /></form>
+  const waitlistForm = document.getElementById('waitlist-form');
+  if (waitlistForm) {
+    waitlistForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const email = document.getElementById('waitlist-email').value.trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert("Please enter a valid email.");
+        return;
+      }
+      try {
+        await sendToSheet({ email, source: 'waitlist' });
+        alert('Thanks! You are on the waitlist.'); // or show a custom success UI
+      } catch (err) {
+        alert('Something went wrong. Please try again.');
+        console.error(err);
+      }
+    });
+  }
+
+  // Initialize particles on load
+  document.addEventListener('DOMContentLoaded', createParticles);
 </script>
+
 
 </body>
 </html>

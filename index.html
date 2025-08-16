@@ -1942,13 +1942,13 @@
 function setupWaitlistForm() {
     const waitlistForm = document.getElementById('waitlist-form');
     if (waitlistForm) {
-        waitlistForm.addEventListener('submit', function(event) {
+        waitlistForm.addEventListener('submit', async function(event) {
             event.preventDefault();
             
             const emailInput = document.getElementById('email-input');
             const email = emailInput.value.trim();
-            
-            if (!email) {
+
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 alert('Please enter a valid email address');
                 return;
             }
@@ -1959,24 +1959,39 @@ function setupWaitlistForm() {
             submitBtn.textContent = 'Submitting...';
             submitBtn.disabled = true;
 
-            // ✅ Directly show Thank You card without API request
-            const waitlistFormCard = document.getElementById('waitlist-form-card');
-            const thankYouCard = document.getElementById('thank-you-card');
+            try {
+                // ✅ Send to Google Sheet
+                const params = new URLSearchParams();
+                params.append('email', email);
+                params.append('source', 'waitlist');
+                params.append('userAgent', navigator.userAgent);
+                params.append('page', location.href);
 
-            if (waitlistFormCard && thankYouCard) {
-                waitlistFormCard.classList.add('hidden');
-                thankYouCard.classList.remove('hidden');
-            }
+                await fetch("https://script.google.com/macros/s/AKfycbxx5VCa4WoLmIT8G6My1H3_lxb6VO37QHFZa_eR2TgncWkZgSM2jEETS_m2fLCpRxQ/exec", {
+                    method: "POST",
+                    body: params
+                });
 
-            // Reset form state
-            setTimeout(() => {
+                // ✅ Show Thank You card
+                const waitlistFormCard = document.getElementById('waitlist-form-card');
+                const thankYouCard = document.getElementById('thank-you-card');
+                if (waitlistFormCard && thankYouCard) {
+                    waitlistFormCard.classList.add('hidden');
+                    thankYouCard.classList.remove('hidden');
+                }
+            } catch (error) {
+                alert("Something went wrong. Please try again.");
+                console.error(error);
+            } finally {
+                // Reset form state
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
                 emailInput.value = '';
-            }, 500); // small delay for smoother UX
+            }
         });
     }
 }
+
 
 
 
@@ -2015,14 +2030,6 @@ function setupWaitlistForm() {
         window.addEventListener('scroll', updateScrollIndicator);
         updateScrollIndicator();
         //
-        fetch("https://script.google.com/macros/s/AKfycbyabAKp1Ttz-aA_6C4k__B_0302jZl2X7CoI89sZBTER49G6PLFaitmUiBvPoXapC0d/exec", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ email: "test@example.com", type: "waitlist" })
-})
-.then(res => res.json())
-.then(console.log)
-.catch(console.error);
 
     </script>
 </body>
